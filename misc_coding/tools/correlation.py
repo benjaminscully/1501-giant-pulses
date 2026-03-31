@@ -14,6 +14,9 @@ def parabola(x, w, m, c):
 def line(x, m, c):
     return m * x + c
 
+def gaussian(x, sigma, mu, A):
+    return A * np.exp(-(x - mu)**2 / (2 * sigma**2))
+
 def find_peak_boundaries(time_stream, num_peaks):
     """
     Automatically detect boundaries between peaks in a time stream using peak detection.
@@ -302,11 +305,21 @@ def find_means(correlations, ns_times, freqs_blur, n=11, plot=False, verbose=0):
             continue
         else:
             cross_corr = correlations[key]
-            # to find what should be the middle, find weighted average of frequencies using the cross_corr as weights, but only in the middle 50% of frequencies to avoid outliers dominating the mean
+
+            # to find what should be the middle, fit a gaussian to the cross_corr but only around the middle 25% of frequencies
+            middle_range = (freqs_blur.value > freqs_blur.value[int(len(freqs_blur)*0.375)]) & (freqs_blur.value < freqs_blur.value[int(len(freqs_blur)*0.625)])
+            popt_gaussian, pcov_gaussian = curve_fit(gaussian, freqs_blur[middle_range].value, cross_corr[middle_range],
+                                                     p0=[w_nom, np.mean(freqs_blur[middle_range].value), np.nanmax(cross_corr[middle_range])], nan_policy='omit')
+            middle = np.argmin(np.abs(freqs_blur.value - popt_gaussian[1]))
+
+
+            # -OR- to find what should be the middle, find weighted average of frequencies using the cross_corr as weights, but only in the middle 33% of frequencies
             # middle_range = (freqs_blur.value > freqs_blur.value[int(len(freqs_blur)*0.33)]) & (freqs_blur.value < freqs_blur.value[int(len(freqs_blur)*0.66)])
             # middle = np.argmin(np.abs(freqs_blur.value - np.average(freqs_blur.value[middle_range], weights=cross_corr[middle_range])))
-            # or get middle based on highest point
-            middle = np.argmax(cross_corr)
+            
+            # -OR- get middle based on highest point
+            # middle = np.argmax(cross_corr)
+
             nearest_points = np.argsort(np.abs(np.arange(len(cross_corr)) - middle))[:n]
             nearest_points = np.sort(nearest_points)
             cross_corr /= np.nanmax(cross_corr)
@@ -369,9 +382,9 @@ def get_correlation_peak_evolution(file, num_peaks, freqs, ts, blurs=[8, 16, 32,
         freqs_blur = temp_results['freqs_blur']
         peak_times = temp_results['peak_times']
 
-        n = int(np.ceil(11 * 16 / blur))
+        n = int(np.ceil(13 * 16 / blur))
         mus, ws, ns_times, r2_avg = find_means(correlations, peak_times, freqs_blur, n=n, plot=False, verbose=verbose)
-        if r2_avg >= 0.5:
+        if r2_avg >= 0.45:
             print("Using results for blur = {}".format(blur))
             correlate_nanoshots(data0, blur=blur, ts=ts, freqs=freqs, num_peaks=num_peaks, plot=plot)
             find_means(correlations, peak_times, freqs_blur, n=n, plot=plot, verbose=0)
