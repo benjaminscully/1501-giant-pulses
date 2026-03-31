@@ -46,7 +46,7 @@ sample_f = fs[0]
 time_step = (1/sample_f.sample_rate).to(u.ms)
 base_ts = np.linspace(0, sample_f.shape[0] * time_step, sample_f.shape[0]).to(u.ms)
 
-blurs = [8, 16, 32]
+blurs = [16, 32]
 
 correlations = {}
 freqs_blur = {}

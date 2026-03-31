@@ -170,35 +170,35 @@ def correlate_nanoshots(fs_data, blur, ts, freqs, num_peaks, plot=True):
     
     # Plotting
     if plot:
-        # Plot 1: Time stream with boundaries
-        fig, axs = plt.subplots(2, 1, figsize=(8, 6), height_ratios=[2, 1], sharex=True)
-        axs[0].imshow(d0, aspect='auto', origin='lower')
-        axs[0].set_ylabel('Frequency')
-        axs[0].set_xlabel('Time index')
-        axs[0].set_title('Dynamic Spectrum')
-        axs[1].plot(time_stream)
-        for boundary in peak_boundaries[:-1]:
-            axs[1].axvline(boundary, color='r', linestyle='--', alpha=0.7)
-        axs[1].set_ylabel('Power')
-        axs[1].set_xlabel('Time index')
-        axs[1].set_title('Time Stream with Peak Boundaries')
+        # # Plot 1: Time stream with boundaries
+        # fig, axs = plt.subplots(2, 1, figsize=(8, 6), height_ratios=[2, 1], sharex=True)
+        # axs[0].imshow(d0, aspect='auto', origin='lower')
+        # axs[0].set_ylabel('Frequency')
+        # axs[0].set_xlabel('Time index')
+        # axs[0].set_title('Dynamic Spectrum')
+        # axs[1].plot(time_stream)
+        # for boundary in peak_boundaries[:-1]:
+        #     axs[1].axvline(boundary, color='r', linestyle='--', alpha=0.7)
+        # axs[1].set_ylabel('Power')
+        # axs[1].set_xlabel('Time index')
+        # axs[1].set_title('Time Stream with Peak Boundaries')
 
         
-        plt.tight_layout()
-        plt.show()
+        # plt.tight_layout()
+        # plt.show()
         
-        # Plot 2: Individual spectra
-        fig, axs = plt.subplots(num_peaks + 1, 1, figsize=(8, 6))
-        if num_peaks == 1:
-            axs = [axs]
+        # # Plot 2: Individual spectra
+        # fig, axs = plt.subplots(num_peaks + 1, 1, figsize=(8, 6))
+        # if num_peaks == 1:
+        #     axs = [axs]
         
-        for i in range(num_peaks):
-            axs[i].plot(freqs_blur, spectra[i])
-            axs[i].set_title(f'Spectrum of peak {i}')
-        axs[-1].plot(freqs_blur, spectra[-1])
-        axs[-1].set_title('Spectrum of off-pulse region')
-        plt.tight_layout()
-        plt.show()
+        # for i in range(num_peaks):
+        #     axs[i].plot(freqs_blur, spectra[i])
+        #     axs[i].set_title(f'Spectrum of peak {i}')
+        # axs[-1].plot(freqs_blur, spectra[-1])
+        # axs[-1].set_title('Spectrum of off-pulse region')
+        # plt.tight_layout()
+        # plt.show()
         
         # Plot 3: Correlations between peaks
         if num_peaks > 1:
@@ -212,23 +212,23 @@ def correlate_nanoshots(fs_data, blur, ts, freqs, num_peaks, plot=True):
             plt.legend()
             plt.show()
         
-        # Plot 4: Continuous correlation map
-        fig, (ax0, ax1) = plt.subplots(2, 1, figsize=(8, 4), sharex=True, 
-                                        gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.15})
+        # # Plot 4: Continuous correlation map
+        # fig, (ax0, ax1) = plt.subplots(2, 1, figsize=(8, 4), sharex=True, 
+        #                                 gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.15})
         
-        im = ax0.imshow(cont_corr.T, aspect='auto', origin='lower',
-                        extent=(ts[0].value, ts[-1].value, freqs_blur[0].value, freqs_blur[-1].value))
-        ax1.plot(ts, time_stream)
-        ax0.set_ylabel('Frequency (GHz)')
-        ax1.set_xlabel('Time (ms)')
+        # im = ax0.imshow(cont_corr.T, aspect='auto', origin='lower',
+        #                 extent=(ts[0].value, ts[-1].value, freqs_blur[0].value, freqs_blur[-1].value))
+        # ax1.plot(ts, time_stream)
+        # ax0.set_ylabel('Frequency (GHz)')
+        # ax1.set_xlabel('Time (ms)')
         
-        fig.suptitle(f'Correlation between peak {brightest_peak} and entire pulse', y=0.995)
-        fig.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.12)
+        # fig.suptitle(f'Correlation between peak {brightest_peak} and entire pulse', y=0.995)
+        # fig.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.12)
         
-        # Add colorbar below the plot to avoid affecting x-axis alignment
-        cbar_ax = fig.add_axes([0.92, 0.35, 0.02, 0.4])
-        plt.colorbar(im, cax=cbar_ax, label='Correlation')
-        plt.show()
+        # # Add colorbar below the plot to avoid affecting x-axis alignment
+        # cbar_ax = fig.add_axes([0.92, 0.35, 0.02, 0.4])
+        # plt.colorbar(im, cax=cbar_ax, label='Correlation')
+        # plt.show()
     
     return {
         'spectra': spectra,
@@ -289,7 +289,6 @@ def find_means(correlations, ns_times, freqs_blur, n=11, plot=False, verbose=0):
                 axs[0,0].set_xlabel('Frequency (MHz)')
                 axs[0,0].set_ylabel('Normalized Correlation')
                 axs[0,0].set_title(f'Auto-correlation for {key}')
-                plt.legend()
             # calculate the R2 of the parabola fit
             residuals = y_data - parabola(x_data, *popt_parabola)
             ss_res = np.nansum(residuals**2)
@@ -304,10 +303,10 @@ def find_means(correlations, ns_times, freqs_blur, n=11, plot=False, verbose=0):
         else:
             cross_corr = correlations[key]
             # to find what should be the middle, find weighted average of frequencies using the cross_corr as weights, but only in the middle 50% of frequencies to avoid outliers dominating the mean
-            middle_range = (freqs_blur.value > freqs_blur.value[int(len(freqs_blur)*0.33)]) & (freqs_blur.value < freqs_blur.value[int(len(freqs_blur)*0.66)])
-            middle = np.argmin(np.abs(freqs_blur.value - np.average(freqs_blur.value[middle_range], weights=cross_corr[middle_range])))
+            # middle_range = (freqs_blur.value > freqs_blur.value[int(len(freqs_blur)*0.33)]) & (freqs_blur.value < freqs_blur.value[int(len(freqs_blur)*0.66)])
+            # middle = np.argmin(np.abs(freqs_blur.value - np.average(freqs_blur.value[middle_range], weights=cross_corr[middle_range])))
             # or get middle based on highest point
-            # middle = np.argmax(cross_corr)
+            middle = np.argmax(cross_corr)
             nearest_points = np.argsort(np.abs(np.arange(len(cross_corr)) - middle))[:n]
             nearest_points = np.sort(nearest_points)
             cross_corr /= np.nanmax(cross_corr)
@@ -365,15 +364,17 @@ def get_correlation_peak_evolution(file, num_peaks, freqs, ts, blurs=[8, 16, 32,
     if verbose >= 1:
         print("Trying different blurs to find best fit for peak frequency evolution...")
     for i, blur in enumerate(blurs):
-        temp_results = correlate_nanoshots(data0, blur=blur, ts=ts, freqs=freqs, num_peaks=num_peaks, plot=plot)
+        temp_results = correlate_nanoshots(data0, blur=blur, ts=ts, freqs=freqs, num_peaks=num_peaks, plot=False)
         correlations = temp_results['correlations']
         freqs_blur = temp_results['freqs_blur']
         peak_times = temp_results['peak_times']
 
         n = int(np.ceil(11 * 16 / blur))
-        mus, ws, ns_times, r2_avg = find_means(correlations, peak_times, freqs_blur, n=n, plot=plot, verbose=verbose)
-        if r2_avg >= 0.35:
+        mus, ws, ns_times, r2_avg = find_means(correlations, peak_times, freqs_blur, n=n, plot=False, verbose=verbose)
+        if r2_avg >= 0.5:
             print("Using results for blur = {}".format(blur))
+            correlate_nanoshots(data0, blur=blur, ts=ts, freqs=freqs, num_peaks=num_peaks, plot=plot)
+            find_means(correlations, peak_times, freqs_blur, n=n, plot=plot, verbose=0)
             broke = True
             break
         r2s[i] = r2_avg
@@ -387,6 +388,12 @@ def get_correlation_peak_evolution(file, num_peaks, freqs, ts, blurs=[8, 16, 32,
             print("None of the blurs gave a good fit (r2 >= 0.35). Returning results for blur with highest r2.")
         best_idx = np.argmax(r2s)
         print("Using results for blur = {}".format(blurs[best_idx]))
+        temp_results = correlate_nanoshots(data0, blur=blur, ts=ts, freqs=freqs, num_peaks=num_peaks, plot=False)
+        correlations = temp_results['correlations']
+        freqs_blur = temp_results['freqs_blur']
+        peak_times = temp_results['peak_times']
+        find_means(correlations, peak_times, freqs_blur, n=n, plot=plot, verbose=0)
+
         mus = mus_dict[best_idx]
         ws = ws_dict[best_idx]
         ns_times = ns_times_dict[best_idx]
@@ -420,7 +427,7 @@ def get_correlation_peak_evolution(file, num_peaks, freqs, ts, blurs=[8, 16, 32,
     plt.ylabel('Peak frequency of correlation (MHz)')
     plt.title('Peak frequency vs Time')
     plt.legend()
-    # plt.show()  # can uncomment this if you want to do one fit per plot
+    plt.show()  # can uncomment this if you want to do one fit per plot
 
     results = [ts, ms_values, ms_uncs]
     return results, popt_line, unc_line
